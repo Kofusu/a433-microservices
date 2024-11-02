@@ -1,0 +1,26 @@
+# Memakai docker compose v2
+version: '2.0'
+
+# Menggunakan 2 service untuk database dan aplikasi
+services:
+  # aplikasi container
+  item-app:
+    container_name: item-app
+    image: ghcr.io/kofusu/item-app:v1
+    ports:
+      - "80:8080"
+    depends_on:
+      - item-db
+    restart: unless-stopped
+  
+  # db container
+  item-db:
+    container_name: item-db
+    image: mongo:3
+    volumes:
+      - app-db:/data/db
+    restart: unless-stopped
+
+# menggunakan app-db volume untuk database
+volumes:
+  app-db:
