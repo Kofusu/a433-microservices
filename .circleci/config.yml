@@ -1,10 +1,9 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
 version: 2.1
 
 jobs:
   lint-dockerfile:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/golang:1.19 # Updated to use the correct image
     steps:
       - checkout
       - run:
@@ -18,7 +17,7 @@ jobs:
 
   test-app:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/golang:1.19 # Updated to use the correct image
     steps:
       - checkout
       - run:
@@ -27,7 +26,7 @@ jobs:
 
   build-app-karsajobs:
     docker:
-      - image: circleci/golang:1.19
+      - image: cimg/golang:1.19 # Updated to use the correct image
     steps:
       - checkout
       - setup_remote_docker:
@@ -41,36 +40,9 @@ jobs:
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u yourusername --password-stdin
             docker push ghcr.io/yourusername/karsajobs:latest
 
-  build-app-karsajobs-ui:
-    docker:
-      - image: circleci/node:16
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 20.10.7
-      - run:
-          name: Build Docker image for karsajobs-ui
-          command: docker build -t ghcr.io/yourusername/karsajobs-ui:latest .
-      - run:
-          name: Push Docker image to GitHub Container Registry
-          command: |
-            echo "${GHCR_TOKEN}" | docker login ghcr.io -u yourusername --password-stdin
-            docker push ghcr.io/yourusername/karsajobs-ui:latest
-
 workflows:
   karsajobs_pipeline:
-    when:
-      condition:
-        equal: ["<< pipeline.git.branch >>", "karsajobs"]
     jobs:
       - lint-dockerfile
       - test-app
       - build-app-karsajobs
-
-  karsajobs_ui_pipeline:
-    when:
-      condition:
-        equal: ["<< pipeline.git.branch >>", "karsajobs-ui"]
-    jobs:
-      - lint-dockerfile
-      - build-app-karsajobs-ui
